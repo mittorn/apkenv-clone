@@ -30,12 +30,12 @@ static void skip_input_data (j_decompress_ptr cinfo, long num_bytes)
     }
 }
 static void term_source (j_decompress_ptr cinfo) {}
-static void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
+/*static void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
 {
     struct jpeg_source_mgr* src;
 
     if (cinfo->src == NULL) {   /* first time for this JPEG object? */
-        cinfo->src = (struct jpeg_source_mgr *)
+/*        cinfo->src = (struct jpeg_source_mgr *)
             (*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
             sizeof(struct jpeg_source_mgr));
     }
@@ -45,11 +45,11 @@ static void jpeg_mem_src (j_decompress_ptr cinfo, void* buffer, long nbytes)
     src->fill_input_buffer = fill_input_buffer;
     src->skip_input_data = skip_input_data;
     src->resync_to_restart = jpeg_resync_to_restart; /* use default method */
-    src->term_source = term_source;
+/*    src->term_source = term_source;
     src->bytes_in_buffer = nbytes;
     src->next_input_byte = (JOCTET*)buffer;
 }
-
+*/
 image_t* imagelib_load_jpeg_from_mem(char* buf, size_t size, const imageloadersettings_t settings)
 {
     struct jpeg_decompress_struct cinfo;

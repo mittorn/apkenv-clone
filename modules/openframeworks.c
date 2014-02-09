@@ -306,6 +306,10 @@ static void
 openframeworks_resume(struct SupportModule *self);
 
 static void
+openframeworks_resize(struct SupportModule *self,int width,int height)
+{
+}
+static void
 openframeworks_init(struct SupportModule *self, int width, int height, const char *home)
 {
     char buf[1024];

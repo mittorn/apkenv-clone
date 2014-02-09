@@ -495,6 +495,10 @@ static int my_soundInit(void)
     return audio_rate;
 }
 
+static void
+marmalade_resize(struct SupportModule *self,int width,int height)
+{
+}
 jint
 marmalade_CallIntMethodV(JNIEnv *env, jobject p1, jmethodID p2, va_list p3)
 {

@@ -69,6 +69,7 @@
         module->pause = modulename ## _pause; \
         module->resume = modulename ## _resume; \
         module->requests_exit = modulename ## _requests_exit; \
+        module->resize = modulename ## _resize;\
         return APKENV_MODULE_VERSION; \
     }
 

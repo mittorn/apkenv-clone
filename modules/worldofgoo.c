@@ -433,6 +433,11 @@ worldofgoo_init(struct SupportModule *self, int width, int height, const char *h
 }
 
 static void
+worldofgoo_resize(struct SupportModule *self,int width,int height)
+{
+self->priv->nativeResize(ENV_M,GLOBAL_M,width,height);
+}
+static void
 worldofgoo_input(struct SupportModule *self, int event, int x, int y, int finger)
 {
     self->priv->nativeTouchEvent(ENV_M, GLOBAL_M, event, x, y, finger);

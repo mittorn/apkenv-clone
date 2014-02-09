@@ -306,6 +306,10 @@ JNIEnv_ExceptionOccurred(JNIEnv* p0)
     return NULL;
 }
 
+static void
+fruitninja_resize(struct SupportModule *self,int width,int height)
+{
+}
 static int
 fruitninja_try_init(struct SupportModule *self)
 {

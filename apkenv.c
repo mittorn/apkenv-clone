@@ -319,9 +319,9 @@ operation(const char *operation, const char *filename)
 
 
 static int
-system_init(int gles_version)
+system_init(int gles_version,int width,int height)
 {
-    if (!(global.platform->init(gles_version))) {
+    if (!(global.platform->init(gles_version,width,height))) {
         printf("Platform initialization failed.\n");
         return 0;
     }
@@ -354,7 +354,7 @@ int main(int argc, char **argv)
     global.apkenv_copyright = APKENV_COPYRIGHT;
 
     printf("%s\n%s\n\n", global.apkenv_headline, global.apkenv_copyright);
-
+    int width=400,height=300;
     switch (argc) {
         case 2:
             /* One argument - the .apk (continue below) */
@@ -363,6 +363,12 @@ int main(int argc, char **argv)
             /* Two arguments - operation + the apk */
             operation(argv[1], argv[2]);
             break;
+        case 4:
+    	    /* Three arguments - wingow geometry is given */
+    	    sscanf(argv[1],"%d",&width);
+    	    sscanf(argv[2],"%d",&height);
+    	    printf("Window size set to %dx%d\n",width,height);
+    	    break;
         default:
             /* Wrong number of arguments */
             usage();
@@ -511,7 +517,7 @@ int main(int argc, char **argv)
 #endif
     printf("Using GLES version %d\n", gles_version);
 
-    if (!system_init(gles_version)) {
+    if (!system_init(gles_version,width,height)) {
         return 0;
     }
 
@@ -527,7 +533,7 @@ int main(int argc, char **argv)
 
     apk_read_resources(global.apklib_handle, &global.resource_strings);
 
-    int width, height;
+    //int width, height;
     global.platform->get_size(&width, &height);
     module->init(module, width, height, data_directory);
 

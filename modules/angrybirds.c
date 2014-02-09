@@ -220,6 +220,7 @@ static void
 angrybirds_input(struct SupportModule *self, int event, int x, int y, int finger)
 {
     self->priv->native_input(ENV_M, GLOBAL_M, event, x, y, finger);
+    //printf("native input %d %d %d %d\n",event,x,y,0);
 }
 
 static void
@@ -259,6 +260,10 @@ angrybirds_requests_exit(struct SupportModule *self)
 {
     return self->priv->want_exit;
 }
-
+static void
+angrybirds_resize(struct SupportModule *self, int width, int height)
+{
+    self->priv->native_resize(ENV_M, GLOBAL_M,width,height);
+}
 APKENV_MODULE(angrybirds, MODULE_PRIORITY_GAME)
 

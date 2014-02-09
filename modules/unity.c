@@ -267,6 +267,10 @@ JNIEnv_GetStringUTFChars(JNIEnv *env, jstring string, jboolean *isCopy)
 
 
 static void
+unity_resize(struct SupportModule *self,int width,int height)
+{
+}
+static void
 unity_init(struct SupportModule *self, int width, int height, const char *home)
 {
     global = GLOBAL_M;

@@ -80,6 +80,10 @@ generic_pause(struct SupportModule *self)
 }
 
 static void
+generic_resize(struct SupportModule *self,int width,int height)
+{
+}
+static void
 generic_resume(struct SupportModule *self)
 {
 }

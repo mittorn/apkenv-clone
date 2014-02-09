@@ -33,41 +33,54 @@ SOURCES += $(APKLIB_SOURCES)
 SOURCES += $(JNIENV_SOURCES)
 SOURCES += $(IMAGELIB_SOURCES)
 SOURCES += $(DEBUG_SOURCES)
-
-PANDORA ?= 0
-ifeq ($(PANDORA),1)
-SOURCES += platform/pandora.c
+PLATFORM ?= sdl
+ifeq ($(PLATFORM),pandora)
+PANDORA = 1
 else
-SOURCES += platform/maemo.c
+PANDORA = 0
 endif
 
+
+#ifeq ($(PANDORA),1)
+#SOURCES += platform/pandora.c
+#else
+#SOURCES += platform/maemo.c
+#endif
+SOURCES += platform/$(PLATFORM).c
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 MODULES = $(patsubst modules/%.c,%.apkenv.so,$(MODULES_SOURCES))
 
-LDFLAGS = -fPIC -ldl -lz -lSDL -lSDL_mixer -pthread -lpng -ljpeg
-
-ifeq ($(PANDORA),1)
-CFLAGS += -DPANDORA
-LDFLAGS += -lrt
+LDFLAGS = -fPIC -ldl -lz -pthread -lpng -ljpeg
+ifeq ($(PLATFORM),sdl)
+LDFLAGS += -lSDL
 endif
-
+ifeq ($(PANDORA),1)
+CFLAGS += -DPANDORA -DNO_HARDFP -O2 -pipe
+LDFLAGS += -lrt -lSDL -lSDL_mixer
+endif
+ifeq ($(SOFTFP),1)
+CFLAGS += -DNO_HARDFP
+endif
 # Selection of OpenGL ES version support (if any) to include
 CFLAGS += -DAPKENV_GLES
-LDFLAGS += -lGLES_CM
+LDFLAGS += -lGLESv1_CM
 CFLAGS += -DAPKENV_GLES2
 LDFLAGS += -lGLESv2 -lEGL
 
 FREMANTLE ?= 0
 ifeq ($(FREMANTLE),1)
-    CFLAGS += -DFREMANTLE
-    LDFLAGS += -lSDL_gles
+    CFLAGS += -DFREMANTLE -DNO_HARDFP
+    LDFLAGS += -lSDL_gles -lSDL -lSDL_mixer
 endif
-
+GDB ?= 1
+ifeq ($(GDB),1)
+    CFLAGS += -g -Wall -Wformat=0
+endif
 DEBUG ?= 0
 ifeq ($(DEBUG),1)
-    CFLAGS += -g -Wall -DLINKER_DEBUG=1 -DAPKENV_DEBUG -Wformat=0
+    CFLAGS += -DLINKER_DEBUG=1 -DAPKENV_DEBUG
 else
-    CFLAGS += -O2 -DLINKER_DEBUG=0
+    CFLAGS += -DLINKER_DEBUG=0
 endif
 
 all: $(TARGET) $(MODULES)
@@ -82,7 +95,7 @@ $(TARGET): $(OBJS)
 
 %.apkenv.so: modules/%.c
 	@echo -e "\tMOD\t$@"
-	@$(CC) -fPIC -shared $(CFLAGS) -o $@ $<
+	@$(CC) -fPIC -shared $(CFLAGS) -lSDL -lSDL_mixer -o $@ $<
 
 strip:
 	@echo -e "\tSTRIP"

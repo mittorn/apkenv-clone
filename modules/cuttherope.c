@@ -494,6 +494,10 @@ extract_music_callback(const char *filename, char *buffer, size_t size)
 
 
 
+static void
+cuttherope_resize(struct SupportModule *self,int width,int height)
+{
+}
 static int
 cuttherope_try_init(struct SupportModule *self)
 {

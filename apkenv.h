@@ -67,6 +67,7 @@ struct SupportModule {
     void (*deinit)(struct SupportModule *self);
     void (*pause)(struct SupportModule *self);
     void (*resume)(struct SupportModule *self);
+    void (*resize)(struct SupportModule *self,int width, int height);
     int (*requests_exit)(struct SupportModule *self);
 
     struct SupportModule *next;
@@ -99,7 +100,7 @@ enum PlatformPath {
 
 struct PlatformSupport {
     /* Initialize the video mode, return nonzero on success, zero on error */
-    int (*init)(int gles_version);
+    int (*init)(int gles_version, int width, int height);
 
     /* Get a device path (see enum PlatformPath), don't free() the result */
     const char *(*get_path)(enum PlatformPath which);
@@ -170,7 +171,7 @@ struct GlobalState {
  * Attribute for softfp-calling-style functions
  * (only on Harmattan - Fremantle *is* softfp)
  **/
-#if defined(FREMANTLE) || defined(PANDORA)
+#if defined(NO_HARDFP)
 #    define SOFTFP
 #else
 #    define SOFTFP __attribute__((pcs("aapcs")))

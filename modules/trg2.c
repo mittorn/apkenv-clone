@@ -99,7 +99,7 @@ static void
 trg2_update(struct SupportModule *self)
 {
     if (self->priv->native_accelerometer != NULL) {
-        SDL_JoystickUpdate();
+        //SDL_JoystickUpdate();
         self->priv->native_accelerometer(ENV_M, GLOBAL_M,
                 GET_AXIS(self->priv->joystick, 0),
                 GET_AXIS(self->priv->joystick, 1),
@@ -123,7 +123,11 @@ static void
 trg2_resume(struct SupportModule *self)
 {
 }
-
+static void
+trg2_resize(struct SupportModule *self,int width,int height)
+{
+    self->priv->native_resize(ENV_M, GLOBAL_M, width, height);
+}
 static int
 trg2_requests_exit()
 {

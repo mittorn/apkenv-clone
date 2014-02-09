@@ -17,7 +17,9 @@
                           (but you should use iowin32.c for windows instead)
 
 */
-
+#ifndef OF
+#define OF _Z_OF
+#endif
 #ifndef _ZLIBIOAPI64_H
 #define _ZLIBIOAPI64_H
 
