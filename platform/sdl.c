@@ -130,6 +130,8 @@ typedef struct
     EGLContext eglContext;
     int fbdev;
     SDL_Surface* screen;
+    int width;
+    int height;
 } GLES_Data;
 
 GLES_Data* G_Data = NULL;
@@ -153,7 +155,7 @@ sdl_get_path(enum PlatformPath which)
 }
 
 static int
-sdl_init(int gles_version)
+sdl_init(int gles_version, int width, int height)
 {
     int i, j;
 
@@ -187,8 +189,9 @@ sdl_init(int gles_version)
 
     GLES_Data* data = (GLES_Data*)malloc(sizeof(GLES_Data));
     memset(data,0,sizeof(GLES_Data));
-
-    data->screen = SDL_SetVideoMode(400,300,0,0);
+    data->width=width;
+    data->height=height;
+    data->screen = SDL_SetVideoMode(width,height,0,0);
     CHK_FREE_RET(data->screen==NULL,data,0);
 
     SDL_SysWMinfo  sysWmInfo;
@@ -237,11 +240,11 @@ static void
 sdl_get_size(int *width, int *height)
 {
     if (width) {
-        *width = 400;//G_Data->screen->w;
+        *width = G_Data->width;
     }
 
     if (height) {
-        *height = 300;//G_Data->screen->h;
+        *height = G_Data->height;
     }
 }
 
