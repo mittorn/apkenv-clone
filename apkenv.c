@@ -227,9 +227,9 @@ static void
 usage()
 {
     if (global.platform->get_path(PLATFORM_PATH_INSTALL_DIRECTORY) != NULL) {
-        printf("Usage: %s <file.apk>\n",global.apkenv_executable);
+        printf("Usage: [<width> <height>] %s <file.apk>\n",global.apkenv_executable);
     } else {
-        printf("Usage: %s [--install] <file.apk>\n",global.apkenv_executable);
+        printf("Usage: %s [--install or <width> <height>] <file.apk>\n",global.apkenv_executable);
     }
     exit(1);
 }
