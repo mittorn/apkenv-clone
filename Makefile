@@ -24,8 +24,8 @@ TARGET = apkenv
 
 DESTDIR ?= /
 PREFIX ?= /usr/local/$(TARGET)/
-BIONIC_LIBS ?= $(wildcard libs/*.so)
-
+BIONIC_LIBS_PATH ?=libs
+BIONIC_LIBS ?= $(wildcard $(BIONIC_LIBS_PATH)/*.so)
 SOURCES += $(TARGET).c
 SOURCES += $(LINKER_SOURCES)
 SOURCES += $(COMPAT_SOURCES)
@@ -68,7 +68,7 @@ LDFLAGS += -lGLESv1_CM
 CFLAGS += -DAPKENV_GLES2
 LDFLAGS += -lGLESv2 -lEGL
 # Define config dir
-CFLAGS += -DCONFIG_ROOT=\"$(CONFIG_ROOT)/\" -DMODULES_DIR=\"$(PREFIX)/lib/$(TARGET)/modules/\"
+CFLAGS += -DCONFIG_ROOT=\"$(CONFIG_ROOT)/\" -DMODULES_DIR=\"$(PREFIX)/lib/$(TARGET)/modules/\" -DBIONIC_DIR=\"$(PREFIX)/lib/apkenv/bionic/\"
 
 FREMANTLE ?= 0
 ifeq ($(FREMANTLE),1)
@@ -112,6 +112,7 @@ install: $(TARGET) $(MODULES)
 	@install -m755 $(TARGET) $(DESTDIR)$(PREFIX)/bin
 	@echo -e "\tINSTALL\tMODULES"
 	@install -m644 $(MODULES) $(DESTDIR)$(PREFIX)/lib/$(TARGET)/modules
+ifneq (BIONIC_LIBS,)
 ifneq ($(PANDORA),1)
 	@echo -e "\tINSTALL\tBIONIC"
 	@install -m644 $(BIONIC_LIBS) $(DESTDIR)$(PREFIX)/lib/$(TARGET)/bionic
@@ -125,7 +126,9 @@ else
 	@mkdir -p $(DESTDIR)$(PREFIX)/system/lib
 	@install -m644 libs/pandora/system/lib/*.so $(DESTDIR)$(PREFIX)/system/lib/
 endif
-
+else
+	@echo -e "Could not find BIONIC_LIBS. Please specify BIONIC_LIBS_PATH to install them."
+endif
 clean:
 	@echo -e "\tCLEAN"
 	@rm -rf $(TARGET) $(OBJS) $(MODULES)

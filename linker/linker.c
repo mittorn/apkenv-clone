@@ -608,19 +608,11 @@ static void dump(soinfo *si)
 
 #define SOPATH_MAX 8
 
-#if defined(PANDORA)
-static const char *sopaths[SOPATH_MAX + 1] = {
-    "./vendor/lib",
-    "./system/lib",
-    "./lib",
-};
-#else
 static const char *sopaths[SOPATH_MAX + 1] = {
     "/vendor/lib",
     "/system/lib",
-    "/opt/apkenv/bionic/",
+    BIONIC_DIR,
 };
-#endif
 
 int add_sopath(const char *path)
 {
