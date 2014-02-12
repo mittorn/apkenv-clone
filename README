@@ -144,3 +144,7 @@ You can specify inital window size by adding two arguments before path
 to apk:
 	apkenv <width> <height> <apkfile>
 
+Configuration file
+==================
+You can make ~/.apkenv/config file with option=value in each line.
+Supported options listed in config.example file

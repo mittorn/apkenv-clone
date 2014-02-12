@@ -341,11 +341,12 @@ extern struct PlatformSupport platform_support;
 char *get_config(char *name)
 {
     int i=0,n=strlen(name);
-    while(global.config[i])
-    {
-	if(strcmp(global.config[i],name)=='=')return global.config[i]+n+1;
-	i++;
-    }
+    if(global.config)
+	while(global.config[i])
+	{
+	    if(strcmp(global.config[i],name)=='=')return global.config[i]+n+1;
+	    i++;
+	}
     return 0;
 }
 
