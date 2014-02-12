@@ -75,7 +75,8 @@ trg2_try_init(struct SupportModule *self)
 static void
 trg2_init(struct SupportModule *self, int width, int height, const char *home)
 {
-    self->priv->joystick = SDL_JoystickOpen(0);
+    SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+    if(SDL_NumJoysticks()>0)self->priv->joystick = SDL_JoystickOpen(0);
     self->priv->JNI_OnLoad(VM_M, NULL);
     self->priv->native_init(ENV_M, GLOBAL_M);
     self->priv->native_resize(ENV_M, GLOBAL_M, width, height);
@@ -98,8 +99,8 @@ trg2_key_input(struct SupportModule *self, int event, int keycode, int unicode)
 static void
 trg2_update(struct SupportModule *self)
 {
-    if (self->priv->native_accelerometer != NULL) {
-        //SDL_JoystickUpdate();
+    if (self->priv->native_accelerometer&&self->priv->joystick) {
+        SDL_JoystickUpdate();
         self->priv->native_accelerometer(ENV_M, GLOBAL_M,
                 GET_AXIS(self->priv->joystick, 0),
                 GET_AXIS(self->priv->joystick, 1),
