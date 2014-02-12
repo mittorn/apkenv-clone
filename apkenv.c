@@ -338,23 +338,86 @@ system_init(int gles_version,int width,int height)
 /* Provided by one of the support modules in "platform/" */
 extern struct PlatformSupport platform_support;
 
+char *get_config(char *name)
+{
+    int i=0,n=strlen(name);
+    while(global.config[i])
+    {
+	if(strcmp(global.config[i],name)=='=')return global.config[i]+n+1;
+	i++;
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
+    
     global.platform = &platform_support;
 
     debug_init();
 
     char **tmp;
 
-    const char *main_data_dir = global.platform->get_path(PLATFORM_PATH_DATA_DIRECTORY);
+    char *config_root = CONFIG_ROOT;
+    if(config_root[0]=='~')
+    {
+	char* home_dir=getenv("HOME");
+	char* home_config_dir=(char*)calloc(sizeof(char),strlen(config_root)+strlen(home_dir));
+	strcpy(home_config_dir,home_dir);
+	strcat(home_config_dir,config_root+sizeof(char));
+	config_root=home_config_dir;
+    }
+    char *main_data_dir=(char*)calloc(sizeof(char),6+strlen(config_root));
+    strcpy(main_data_dir,config_root);
+    strcat(main_data_dir,"data/");
     recursive_mkdir(main_data_dir);
-
+    char *user_modules_dir=(char*)calloc(sizeof(char),9+strlen(config_root));
+    strcpy(user_modules_dir,config_root);
+    strcat(user_modules_dir,"modules/");
     global.apkenv_executable = argv[0];
     global.apkenv_headline = APKENV_HEADLINE;
     global.apkenv_copyright = APKENV_COPYRIGHT;
+    char *config_path=(char*)calloc(sizeof(char),strlen(config_root)+7);
+    strcpy(config_path,config_root);
+    strcat(config_path,"config");
+    int config_fd;
+    if((config_fd=open(config_path,O_RDONLY))>0) {
+	int config_buf_used=0,config_buf_size=20;
+	char *config_buf=(char*)calloc(1,20);
+	char *config_tmp;
+	while ((config_buf_used+=read(config_fd,config_buf+config_buf_used,20))==config_buf_size) {
+	    config_buf_size += 20;
+	    config_tmp = realloc(config_buf, config_buf_size); // get a new larger array
+	    config_buf = config_tmp;
+	}
+	//printf(config_buf);
+	global.config=(char**)calloc(4,sizeof(char*));
+	//char** config_tmp2;
+	config_buf_size=4;
+	config_buf_used=0;
+	int config_line_start=0, config_line_num=0;
+	while(config_buf[config_buf_used]) {
+	    if(config_buf[config_buf_used]=='\n') {
+		if(config_line_num>=config_buf_size) {
+		    global.config=realloc(global.config,config_line_num+4);
+		}
+		global.config[config_line_num]=malloc(config_buf_used-config_line_start);
+		memcpy(global.config[config_line_num],config_buf+config_line_start,config_buf_used-config_line_start);
+		config_line_start=config_buf_used+1,config_line_num++;
+	    }
+	    config_buf_used++;
+	}
+	global.config[config_line_num]=0;
+    }
+    printf("\n");
+//    printf("%s\n",get_config("width"));
 
     printf("%s\n%s\n\n", global.apkenv_headline, global.apkenv_copyright);
     int width=400,height=300;
+    char* tmpstr;
+    if(tmpstr=get_config("width"))sscanf(tmpstr,"%d",&width);
+    if(tmpstr=get_config("height"))sscanf(tmpstr,"%d",&height);
+    
     switch (argc) {
         case 2:
             /* One argument - the .apk (continue below) */
@@ -453,7 +516,8 @@ int main(int argc, char **argv)
     global.libraries = head;
 
     load_modules(".");
-    load_modules(global.platform->get_path(PLATFORM_PATH_MODULE_DIRECTORY));
+    load_modules(user_modules_dir);
+    load_modules(MODULES_DIR);
     notify_gdb_of_libraries();
 
     if (global.support_modules == NULL) {
@@ -525,9 +589,10 @@ int main(int argc, char **argv)
     printf("Using module: %s\n", module->filename);
     install_overrides(module);
 
-    char data_directory[PATH_MAX];
+    char *apkname=apk_basename(global.apk_filename);
+    char *data_directory=(char*)calloc(sizeof(char),strlen(main_data_dir)+strlen(apkname)+1);
     strcpy(data_directory, main_data_dir);
-    strcat(data_directory, apk_basename(global.apk_filename));
+    strcat(data_directory, apkname);
     strcat(data_directory, "/");
     recursive_mkdir(data_directory);
 

@@ -19,12 +19,12 @@ IMAGELIB_SOURCES=$(wildcard imagelib/*.c)
 
 # segfault catch
 DEBUG_SOURCES=$(wildcard debug/*.c)
-
+CONFIG_ROOT?=~/.apkenv
 TARGET = apkenv
 
 DESTDIR ?= /
-PREFIX ?= /opt/$(TARGET)/
-BIONIC_LIBS = $(wildcard libs/*.so)
+PREFIX ?= /usr/local/$(TARGET)/
+BIONIC_LIBS ?= $(wildcard libs/*.so)
 
 SOURCES += $(TARGET).c
 SOURCES += $(LINKER_SOURCES)
@@ -36,6 +36,7 @@ SOURCES += $(DEBUG_SOURCES)
 PLATFORM ?= sdl
 ifeq ($(PLATFORM),pandora)
 PANDORA = 1
+CONFIG_ROOT=.
 else
 PANDORA = 0
 endif
@@ -66,6 +67,8 @@ CFLAGS += -DAPKENV_GLES
 LDFLAGS += -lGLESv1_CM
 CFLAGS += -DAPKENV_GLES2
 LDFLAGS += -lGLESv2 -lEGL
+# Define config dir
+CFLAGS += -DCONFIG_ROOT=\"$(CONFIG_ROOT)/\" -DMODULES_DIR=\"$(PREFIX)/lib/$(TARGET)/modules/\"
 
 FREMANTLE ?= 0
 ifeq ($(FREMANTLE),1)
@@ -103,15 +106,15 @@ strip:
 
 install: $(TARGET) $(MODULES)
 	@echo -e "\tMKDIR"
-	@mkdir -p $(DESTDIR)$(PREFIX)/{modules,bionic}
-	@mkdir -p $(DESTDIR)/usr/bin
+	@mkdir -p $(DESTDIR)$(PREFIX)/lib/$(TARGET)/{modules,bionic}
+	@mkdir -p $(DESTDIR)$(PREFIX)/bin
 	@echo -e "\tINSTALL\t$(TARGET)"
-	@install -m755 $(TARGET) $(DESTDIR)/usr/bin
+	@install -m755 $(TARGET) $(DESTDIR)$(PREFIX)/bin
 	@echo -e "\tINSTALL\tMODULES"
-	@install -m644 $(MODULES) $(DESTDIR)$(PREFIX)/modules
+	@install -m644 $(MODULES) $(DESTDIR)$(PREFIX)/lib/$(TARGET)/modules
 ifneq ($(PANDORA),1)
 	@echo -e "\tINSTALL\tBIONIC"
-	@install -m644 $(BIONIC_LIBS) $(DESTDIR)$(PREFIX)/bionic
+	@install -m644 $(BIONIC_LIBS) $(DESTDIR)$(PREFIX)/lib/$(TARGET)/bionic
 ifneq ($(FREMANTLE),1)
 	@echo -e "\tINSTALL\tHarmattan Resource Policy"
 	@install -d -m755 $(DESTDIR)/usr/share/policy/etc/syspart.conf.d

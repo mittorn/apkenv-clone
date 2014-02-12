@@ -122,7 +122,7 @@ struct GlobalState {
     const char *apkenv_executable;
     const char *apkenv_headline;
     const char *apkenv_copyright;
-
+    char ** config;
     struct PlatformSupport *platform;
 
     struct JNINativeInterface fake_env;
