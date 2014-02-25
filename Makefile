@@ -51,9 +51,12 @@ SOURCES += platform/$(PLATFORM).c
 OBJS = $(patsubst %.c,%.o,$(SOURCES))
 MODULES = $(patsubst modules/%.c,%.apkenv.so,$(MODULES_SOURCES))
 
-LDFLAGS = -fPIC -ldl -lz -pthread -lpng -ljpeg
+LDFLAGS = -fPIC -ldl -lz -lrt -pthread -lpng -ljpeg
 ifeq ($(PLATFORM),sdl)
 LDFLAGS += -lSDL
+endif
+ifeq ($(PLATFORM),x11)
+LDFLAGS += -lX11
 endif
 ifeq ($(PANDORA),1)
 CFLAGS += -DPANDORA -DNO_HARDFP -O2 -pipe
@@ -70,6 +73,10 @@ LDFLAGS += -lGLESv2 -lEGL
 # Define config dir
 CFLAGS += -DCONFIG_ROOT=\"$(CONFIG_ROOT)/\" -DMODULES_DIR=\"$(PREFIX)/lib/$(TARGET)/modules/\" -DBIONIC_DIR=\"$(PREFIX)/lib/apkenv/bionic/\"
 
+ifeq ($(EVDEV),1)
+SOURCES += input/evdev.c
+CFLAGS += -DEVDEV
+endif
 FREMANTLE ?= 0
 ifeq ($(FREMANTLE),1)
     CFLAGS += -DFREMANTLE -DNO_HARDFP

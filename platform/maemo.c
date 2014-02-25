@@ -123,13 +123,16 @@ maemo_input_update(struct SupportModule *module)
 
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
+#ifndef EVDEV
         if (e.type == SDL_MOUSEBUTTONDOWN) {
             module->input(module, ACTION_DOWN, e.button.x, e.button.y, e.button.which);
         } else if (e.type == SDL_MOUSEBUTTONUP) {
             module->input(module, ACTION_UP, e.button.x, e.button.y, e.button.which);
         } else if (e.type == SDL_MOUSEMOTION) {
             module->input(module, ACTION_MOVE, e.motion.x, e.motion.y, e.motion.which);
-        } else if (e.type == SDL_QUIT) {
+        } else
+#endif
+        if (e.type == SDL_QUIT) {
             return 1;
         } else if (e.type == SDL_ACTIVEEVENT) {
             if (e.active.state == SDL_APPACTIVE && e.active.gain == 0) {

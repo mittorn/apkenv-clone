@@ -26,7 +26,12 @@
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
-
+/*
+Plain SDL module
+Based on pandora sdl platform module
+Fixed work on X11 EGL
+Fixed build with recent SDL
+*/
 
 #include "../apkenv.h"
 #include "../compat/android_keycodes.h"
@@ -96,8 +101,6 @@ static unsigned char keymap[] = {
 
 
 #define FRAMEBUFFERDEVICE "/dev/fb0"
-
-//
 #define CHK_FREE_RET( chk, ptr, ret ) \
     if ( chk ) { \
         fprintf(stderr,"ERROR: %s at %s(%d)\n",#chk,__FILE__,__LINE__);\	
@@ -136,8 +139,6 @@ typedef struct
 
 GLES_Data* G_Data = NULL;
 
-/* -------- */
-
 
 static const char *
 sdl_get_path(enum PlatformPath which)
@@ -158,10 +159,6 @@ static int
 sdl_init(int gles_version, int width, int height)
 {
     int i, j;
-
-//    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0) {
-//        return 0;
-//    }
 
     for (i = SDLK_0, j = AKEYCODE_0; i <= SDLK_9; i++, j++) {
         keymap[i] = j;
@@ -191,7 +188,11 @@ sdl_init(int gles_version, int width, int height)
     memset(data,0,sizeof(GLES_Data));
     data->width=width;
     data->height=height;
-    data->screen = SDL_SetVideoMode(width,height,0,0);
+    char *tmpptr=get_config("sdl_fullscreen");
+    if(tmpptr&&atoi(tmpptr))
+	data->screen = SDL_SetVideoMode(0,0,0,SDL_FULLSCREEN);
+    else
+	data->screen = SDL_SetVideoMode(width,height,0,0);
     CHK_FREE_RET(data->screen==NULL,data,0);
 
     SDL_SysWMinfo  sysWmInfo;
@@ -260,9 +261,8 @@ sdl_input_update(struct SupportModule *module)
 {
     static int emulate_multitouch = 0;
     const int emulate_finger_id = 2;
-    int width = 400;//G_Data->screen->w;
-    int height = 300;//G_Data->screen->h;
-    //printf("input update\n");
+    int width = 400;
+    int height = 300;
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_KEYDOWN) {
@@ -283,14 +283,14 @@ sdl_input_update(struct SupportModule *module)
             } else {
                 module->key_input(module, ACTION_UP, keymap[e.key.keysym.sym], e.key.keysym.unicode);
             }
-        } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+        } else
+#ifndef EVDEV
+	if (e.type == SDL_MOUSEBUTTONDOWN) {
             module->input(module, ACTION_DOWN, e.button.x, e.button.y, e.button.which);
-            //printf("mouse down %d %d %d\n", e.button.x, e.button.y, e.button.which);
             if (emulate_multitouch) {
                 module->input(module,ACTION_DOWN, width-e.button.x, height-e.button.y,emulate_finger_id);
             }
         } else if (e.type == SDL_MOUSEBUTTONUP) {
-    	    //printf("mouse up %d %d %d\n", e.button.x, e.button.y, e.button.which);
             module->input(module, ACTION_UP, e.button.x, e.button.y, e.button.which);
             if (emulate_multitouch) {
                 module->input(module,ACTION_UP, width-e.button.x, height-e.button.y,emulate_finger_id);
@@ -300,7 +300,9 @@ sdl_input_update(struct SupportModule *module)
             if (emulate_multitouch) {
                 module->input(module,ACTION_MOVE, width-e.button.x, height-e.button.y,emulate_finger_id);
             }
-        } else if (e.type == SDL_QUIT) {
+        } else 
+#endif
+        if (e.type == SDL_QUIT) {
             return 1;
         } else if (e.type == SDL_ACTIVEEVENT) {
             if (e.active.state == SDL_APPACTIVE && e.active.gain == 0) {
@@ -344,10 +346,6 @@ sdl_update()
 
         last_time = get_time_ms();
 
-       // GLES_TestError("eglSwapBuffers");
-#ifdef APKENV_DEBUG
-        // printf("%d swap\n",pthread_self());
-#endif
     }
 }
 

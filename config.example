@@ -1,2 +1,10 @@
 width=760
 height=460
+evdev_mt_path=/dev/input/event1
+evdev_mt_min_x=0
+evdev_mt_max_x=800
+evdev_mt_min_y=480
+evdev_mt_max_y=-600
+screen_width=800
+screen_height=480
+sdl_fullscreen=1

@@ -55,7 +55,10 @@
 /* Global application state */
 struct GlobalState global;
 struct ModuleHacks global_module_hacks;
-
+struct GlobalState * get_global()
+{
+return &global;
+}
 static void *
 lookup_symbol_impl(const char *method)
 {
@@ -349,7 +352,6 @@ char *get_config(char *name)
 	}
     return 0;
 }
-
 int main(int argc, char **argv)
 {
     
@@ -400,8 +402,9 @@ int main(int argc, char **argv)
 	while(config_buf[config_buf_used]) {
 	    if(config_buf[config_buf_used]=='\n') {
 		if(config_line_num>=config_buf_size) {
-		    global.config=realloc(global.config,config_line_num+4);
+		    global.config=realloc(global.config,(config_line_num+4)*sizeof(char*));
 		}
+		if(!global.config)exit(0);
 		global.config[config_line_num]=malloc(config_buf_used-config_line_start);
 		memcpy(global.config[config_line_num],config_buf+config_line_start,config_buf_used-config_line_start);
 		config_line_start=config_buf_used+1,config_line_num++;
@@ -602,7 +605,10 @@ int main(int argc, char **argv)
     //int width, height;
     global.platform->get_size(&width, &height);
     module->init(module, width, height, data_directory);
-
+    //global.platform->input_update=evdev_input_init();
+#ifdef EVDEV
+    evdev_input_init();
+#endif /*EVDEV*/
     notify_gdb_of_libraries();
 
     while (1) {
@@ -610,11 +616,15 @@ int main(int argc, char **argv)
         if (module->requests_exit(module)) {
             break;
         }
-
+        
         if (global.platform->input_update(module)) {
             break;
         }
-
+#ifdef EVDEV
+        if (evdev_input_update(module)) {
+            break;
+        }
+#endif /*EVDEV*/
         module->update(module);
         global.platform->update();
     }

@@ -147,6 +147,9 @@ struct GlobalState {
     int loader_seen_glesv1;
     int loader_seen_glesv2;
 
+    int window_x;
+    int window_y;
+
     lookup_symbol_t lookup_symbol;
     lookup_lib_symbol_t lookup_lib_symbol;
     foreach_file_t foreach_file;
@@ -190,8 +193,8 @@ void *android_dlsym(void *handle, const char *symbol);
 
 /* Module support */
 typedef int (*apkenv_module_init_t)(int version, struct SupportModule *module);
+struct GlobalState * get_global();
 #define APKENV_MODULE_INIT "apkenv_module_init"
 #define APKENV_MODULE_SUFFIX ".apkenv.so"
 #define APKENV_MODULE_VERSION 0x010002
-
 #endif /* APKENV_H */

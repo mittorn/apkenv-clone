@@ -278,7 +278,9 @@ pandora_input_update(struct SupportModule *module)
             } else {
                 module->key_input(module, ACTION_UP, keymap[e.key.keysym.sym], e.key.keysym.unicode);
             }
-        } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+        } else 
+#ifndef EVDEV
+	if (e.type == SDL_MOUSEBUTTONDOWN) {
             module->input(module, ACTION_DOWN, e.button.x, e.button.y, e.button.which);
             if (emulate_multitouch) {
                 module->input(module,ACTION_DOWN, width-e.button.x, height-e.button.y,emulate_finger_id);
@@ -293,7 +295,9 @@ pandora_input_update(struct SupportModule *module)
             if (emulate_multitouch) {
                 module->input(module,ACTION_MOVE, width-e.button.x, height-e.button.y,emulate_finger_id);
             }
-        } else if (e.type == SDL_QUIT) {
+        } else 
+#endif
+        if (e.type == SDL_QUIT) {
             return 1;
         } else if (e.type == SDL_ACTIVEEVENT) {
             if (e.active.state == SDL_APPACTIVE && e.active.gain == 0) {

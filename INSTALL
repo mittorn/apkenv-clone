@@ -4,6 +4,7 @@ To compile apkenv:
 
 Default platform is sdl, possible is maemo, pandora, x11, sdl, eglnative
 Default target is hardfloat, you need to specify SOFTFP=1 to disable hardfp-targeted assertions.
+You need SDL and SDL-mixer libs.
 
 And to install it:
 
@@ -12,3 +13,7 @@ And to install it:
 BIONIC_LIBS_PATH is a path, where from to copy android libc.so,libm.so, libstdc++.so.
 You can place it to ${PREFIX}/lib/apkenv/bionic manually.
 You can get it from https://github.com/mittorn/apkenv-libs by git or copy them from working android build.
+
+To enable evdev multitouch driver, pass EVDEV=1 to make arguments.
+
+You need to make clean after changing configuration before new build.
