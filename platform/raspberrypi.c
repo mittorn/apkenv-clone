@@ -29,6 +29,8 @@
 /*
 Native EGL platform module for Raspberry PI
 Not tested (Because i dont have this board)
+Some makefile changes are needed
+https://benosteen.wordpress.com/2012/04/27/using-opengl-es-2-0-on-the-raspberry-pi-without-x-windows/
 Based on pandora sdl plattform module
 */
 #include "../apkenv.h"
